@@ -1,5 +1,27 @@
 # Changelog / 変更履歴
 
+## [1.0.0-alpha.3] - 2026-11-16
+
+### 日本語
+- **樽・静的ブロックコンテナの描画修正**:
+  - バニラの `entityGlintDirect()` が `GL_EQUAL` 深度テストを使用するため、`scale` で浮かせていた樽（`BarrelBlockEntity`）等が深度テストで破棄されていた問題を修正。静的ブロック専用の `GL_LEQUAL` 深度テスト＋`VIEW_OFFSET_Z_LAYERING` を備えた `GlintRenderTypes` を実装。
+  - `ModelDataManager` から MOD ブロックの `ModelData` を取得するよう改善。
+- **MOD製チェスト・コンテナの対応強化**:
+  - `RandomizableContainerBlockEntity` を継承しない MOD 製コンテナ向けに `ClassValue`＋`MethodHandle` キャッシュによる低負荷 `lootTable` フィールド自動検出と、右クリック時/破壊時の解除同期を追加。
+  - `DefaultVertexFormat.BLOCK` 形式の `BlockEntityRenderer` を持つ MOD 製チェストにも対応する `BlockToEntityGlintAdapter` を実装。
+- **輝きの波の平準化・視認性強化**:
+  - 90度回転・位相オフセット付き対向グリント（`BER_GLINT_COUNTER` / `STATIC_GLINT_COUNTER`）と常時底上げ発光レイヤー（`BER_GLINT_AMBIENT` / `STATIC_GLINT_AMBIENT`）を導入し、最も暗い谷間でも常に上位 1/4 相当の明るさを維持するよう改善。
+
+### English
+- **Barrel & Static Block Container Rendering Fix**:
+  - Fixed barrels (`BarrelBlockEntity`) and other static block containers not rendering glint because vanilla `entityGlintDirect()` uses `GL_EQUAL` depth testing; added custom `GlintRenderTypes` with `GL_LEQUAL` and `VIEW_OFFSET_Z_LAYERING`.
+  - Added `ModelData` lookup via `ModelDataManager` for modded static block containers.
+- **Enhanced Modded Chest & Container Support**:
+  - Added `ModContainerLootAccessor` (`ClassValue` + `MethodHandle` cache) to detect loot-table fields on modded `BlockEntity` classes that do not extend `RandomizableContainerBlockEntity`, with right-click and removal sync.
+  - Added `BlockToEntityGlintAdapter` in `GlintMultiBufferSource` to support modded `BlockEntityRenderer`s using `DefaultVertexFormat.BLOCK`.
+- **Consistent Glint Brightness**:
+  - Added counter-phase rotating glint and steady ambient glint layers so brightness remains at or above the previous top-quarter intensity even during wave troughs.
+
 ## [1.0.0-alpha.2] - 2026-11-16
 
 ### 日本語

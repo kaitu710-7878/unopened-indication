@@ -13,7 +13,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
@@ -21,8 +23,8 @@ import net.minecraftforge.network.PacketDistributor;
 import java.util.Map;
 
 /**
- * Server-side event-driven tracker for unopened loot containers.
- * Relies directly on vanilla/modded lootTable fields without adding extra NBT or ticking overhead.
+ * Server-side event-driven tracker for unopened loot containers (vanilla and modded).
+ * Relies directly on lootTable fields without adding extra NBT or per-tick polling.
  */
 @Mod.EventBusSubscriber(modid = UnopenedIndicationMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class UnopenedTracker {
@@ -57,11 +59,42 @@ public final class UnopenedTracker {
         }
     }
 
-    public static void onContainerStateChanged(ServerLevel level, RandomizableContainerBlockEntity be, boolean unopened) {
+    /**
+     * Fallback check for modded containers that do not extend RandomizableContainerBlockEntity:
+     * schedules a single end-of-tick re-check only when an unopened modded container is right-clicked.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getLevel() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        BlockPos pos = event.getPos();
+        BlockEntity be = serverLevel.getBlockEntity(pos);
+        if (be == null || be instanceof RandomizableContainerBlockEntity) {
+            return;
+        }
+        if (!ModConfig.isBlacklisted(be.getType()) && ModContainerLootAccessor.supportsAndHasLootTable(be)) {
+            BlockPos immutablePos = pos.immutable();
+            serverLevel.getServer().execute(() -> {
+                if (!serverLevel.isLoaded(immutablePos)) {
+                    return;
+                }
+                BlockEntity current = serverLevel.getBlockEntity(immutablePos);
+                if (current == null || !ModContainerLootAccessor.supportsAndHasLootTable(current)) {
+                    sendSingleUpdate(serverLevel, immutablePos, false);
+                }
+            });
+        }
+    }
+
+    public static void onContainerStateChanged(ServerLevel level, BlockEntity be, boolean unopened) {
         if (unopened && ModConfig.isBlacklisted(be.getType())) {
             return;
         }
-        BlockPos pos = be.getBlockPos();
+        sendSingleUpdate(level, be.getBlockPos(), unopened);
+    }
+
+    private static void sendSingleUpdate(ServerLevel level, BlockPos pos, boolean unopened) {
         if (!level.isLoaded(pos)) {
             return;
         }
@@ -73,12 +106,12 @@ public final class UnopenedTracker {
     }
 
     public static boolean isUnopenedLootContainer(BlockEntity be) {
+        if (ModConfig.isBlacklisted(be.getType())) {
+            return false;
+        }
         if (be instanceof RandomizableContainerBlockEntity container) {
-            if (ModConfig.isBlacklisted(be.getType())) {
-                return false;
-            }
             return ((LootTableContainerAccessor) container).unopenedindication$getLootTable() != null;
         }
-        return false;
+        return ModContainerLootAccessor.supportsAndHasLootTable(be);
     }
 }

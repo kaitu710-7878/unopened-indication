@@ -3,6 +3,7 @@ package com.unopenedindication.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unopenedindication.client.ClientUnopenedCache;
 import com.unopenedindication.client.GlintMultiBufferSource;
+import com.unopenedindication.client.GlintRenderTypes;
 import com.unopenedindication.config.ModConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LightTexture;
@@ -50,18 +51,37 @@ public abstract class BlockEntityRenderDispatcherMixin {
     )
     private <E extends BlockEntity> void unopenedindication$renderExtraGlintPasses(
             E blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, CallbackInfo ci) {
-        int extraPasses = ModConfig.glintPasses - 1;
-        if (extraPasses <= 0 || !(bufferSource instanceof GlintMultiBufferSource)) {
+        if (!(bufferSource instanceof GlintMultiBufferSource glintWrapper)) {
             return;
         }
         BlockEntityRenderer<E> renderer = this.getRenderer(blockEntity);
         if (renderer == null) {
             return;
         }
-        // Extra additive glint passes make unopened containers immediately recognizable at a glance
-        MultiBufferSource glintOnly = GlintMultiBufferSource.wrapGlintOnly(bufferSource);
-        for (int i = 0; i < extraPasses; i++) {
-            renderer.render(blockEntity, partialTick, poseStack, glintOnly, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+
+        MultiBufferSource rawSource = glintWrapper.unwrap();
+        // Always render steady ambient base glow so brightness stays >= top-quarter even during wave troughs
+        renderer.render(
+                blockEntity,
+                partialTick,
+                poseStack,
+                GlintMultiBufferSource.wrapGlintOnly(rawSource, GlintRenderTypes.BER_GLINT_AMBIENT),
+                LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY
+        );
+        if (rawSource instanceof MultiBufferSource.BufferSource bs) {
+            bs.endBatch(GlintRenderTypes.BER_GLINT_AMBIENT);
+        }
+
+        int extraPasses = ModConfig.glintPasses - 1;
+        if (extraPasses > 0) {
+            MultiBufferSource counterOnly = GlintMultiBufferSource.wrapGlintOnly(rawSource, GlintRenderTypes.BER_GLINT_COUNTER);
+            for (int i = 0; i < extraPasses; i++) {
+                renderer.render(blockEntity, partialTick, poseStack, counterOnly, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+            }
+            if (rawSource instanceof MultiBufferSource.BufferSource bs) {
+                bs.endBatch(GlintRenderTypes.BER_GLINT_COUNTER);
+            }
         }
     }
 

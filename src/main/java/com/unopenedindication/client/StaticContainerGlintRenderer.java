@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.unopenedindication.UnopenedIndicationMod;
 import com.unopenedindication.config.ModConfig;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -32,7 +33,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 /**
- * Renders batched enchantment glint overlays for static block containers without a BlockEntityRenderer (e.g., barrels).
+ * Renders batched enchantment glint overlays for static block containers without a BlockEntityRenderer (e.g., barrels, modded crates).
  */
 @Mod.EventBusSubscriber(modid = UnopenedIndicationMod.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class StaticContainerGlintRenderer {
@@ -41,6 +42,7 @@ public final class StaticContainerGlintRenderer {
     };
     private static final BlockPos.MutableBlockPos MUTABLE_POS = new BlockPos.MutableBlockPos();
     private static final RandomSource MODEL_RANDOM = RandomSource.create(42L);
+    private static final LongArrayList VISIBLE_POSITIONS = new LongArrayList(16);
 
     private StaticContainerGlintRenderer() {
     }
@@ -70,13 +72,8 @@ public final class StaticContainerGlintRenderer {
         Vec3 camPos = event.getCamera().getPosition();
         double maxDistSq = ModConfig.maxRenderDistanceSq;
         Frustum frustum = event.getFrustum();
-        PoseStack poseStack = event.getPoseStack();
-        BlockRenderDispatcher blockRenderer = mc.getBlockRenderer();
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-        VertexConsumer glintConsumer = bufferSource.getBuffer(RenderType.entityGlintDirect());
-        int passes = ModConfig.glintPasses;
 
-        boolean renderedAny = false;
+        VISIBLE_POSITIONS.clear();
         LongIterator it = staticSet.iterator();
         while (it.hasNext()) {
             long posLong = it.nextLong();
@@ -90,10 +87,49 @@ public final class StaticContainerGlintRenderer {
             if (dx * dx + dy * dy + dz * dz > maxDistSq) {
                 continue;
             }
-
             if (!frustum.isVisible(new AABB(x, y, z, x + 1.0, y + 1.0, z + 1.0))) {
                 continue;
             }
+            VISIBLE_POSITIONS.add(posLong);
+        }
+
+        if (VISIBLE_POSITIONS.isEmpty()) {
+            return;
+        }
+
+        PoseStack poseStack = event.getPoseStack();
+        BlockRenderDispatcher blockRenderer = mc.getBlockRenderer();
+        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        int passes = ModConfig.glintPasses;
+
+        // Ambient base glow keeps brightness >= top-quarter even during glint wave troughs
+        renderBatch(level, blockRenderer, poseStack, bufferSource, camPos, GlintRenderTypes.STATIC_GLINT_AMBIENT);
+        renderBatch(level, blockRenderer, poseStack, bufferSource, camPos, GlintRenderTypes.STATIC_GLINT_PRIMARY);
+        if (passes >= 2) {
+            renderBatch(level, blockRenderer, poseStack, bufferSource, camPos, GlintRenderTypes.STATIC_GLINT_COUNTER);
+        }
+        for (int extra = 2; extra < passes; extra++) {
+            renderBatch(level, blockRenderer, poseStack, bufferSource, camPos, GlintRenderTypes.STATIC_GLINT_PRIMARY);
+        }
+    }
+
+    private static void renderBatch(
+            ClientLevel level,
+            BlockRenderDispatcher blockRenderer,
+            PoseStack poseStack,
+            MultiBufferSource.BufferSource bufferSource,
+            Vec3 camPos,
+            RenderType renderType
+    ) {
+        VertexConsumer consumer = bufferSource.getBuffer(renderType);
+        boolean renderedAny = false;
+        var modelDataManager = level.getModelDataManager();
+
+        for (int idx = 0, count = VISIBLE_POSITIONS.size(); idx < count; idx++) {
+            long posLong = VISIBLE_POSITIONS.getLong(idx);
+            int x = BlockPos.getX(posLong);
+            int y = BlockPos.getY(posLong);
+            int z = BlockPos.getZ(posLong);
 
             MUTABLE_POS.set(x, y, z);
             BlockState state = level.getBlockState(MUTABLE_POS);
@@ -102,27 +138,29 @@ public final class StaticContainerGlintRenderer {
             }
 
             BakedModel model = blockRenderer.getBlockModel(state);
+            ModelData modelData = modelDataManager != null ? modelDataManager.getAt(MUTABLE_POS) : ModelData.EMPTY;
+            if (modelData == null) {
+                modelData = ModelData.EMPTY;
+            }
+
             poseStack.pushPose();
             poseStack.translate(x - camPos.x, y - camPos.y, z - camPos.z);
-            // Slightly expand around block center to prevent z-fighting with baked chunk geometry
             poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.scale(1.003F, 1.003F, 1.003F);
+            poseStack.scale(1.002F, 1.002F, 1.002F);
             poseStack.translate(-0.5, -0.5, -0.5);
 
             PoseStack.Pose pose = poseStack.last();
-            for (int pass = 0; pass < passes; pass++) {
-                for (Direction dir : DIRECTIONS_WITH_NULL) {
-                    MODEL_RANDOM.setSeed(42L);
-                    List<BakedQuad> quads = model.getQuads(state, dir, MODEL_RANDOM, ModelData.EMPTY, null);
-                    for (int i = 0, size = quads.size(); i < size; i++) {
-                        glintConsumer.putBulkData(
-                                pose,
-                                quads.get(i),
-                                1.0F, 1.0F, 1.0F,
-                                LightTexture.FULL_BRIGHT,
-                                OverlayTexture.NO_OVERLAY
-                        );
-                    }
+            for (Direction dir : DIRECTIONS_WITH_NULL) {
+                MODEL_RANDOM.setSeed(42L);
+                List<BakedQuad> quads = model.getQuads(state, dir, MODEL_RANDOM, modelData, null);
+                for (int q = 0, qSize = quads.size(); q < qSize; q++) {
+                    consumer.putBulkData(
+                            pose,
+                            quads.get(q),
+                            1.0F, 1.0F, 1.0F,
+                            LightTexture.FULL_BRIGHT,
+                            OverlayTexture.NO_OVERLAY
+                    );
                 }
             }
 
@@ -131,7 +169,7 @@ public final class StaticContainerGlintRenderer {
         }
 
         if (renderedAny) {
-            bufferSource.endBatch(RenderType.entityGlintDirect());
+            bufferSource.endBatch(renderType);
         }
     }
 }
