@@ -16,19 +16,15 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
 /**
- * Displays whether a targeted container is unopened or opened in Jade's tooltip.
+ * Displays whether a targeted container is unopened or opened in Jade's standard tooltip.
  */
 public enum UnopenedContainerProvider implements IBlockComponentProvider {
     INSTANCE;
 
     public static final ResourceLocation UID = new ResourceLocation(UnopenedIndicationMod.MOD_ID, "loot_status");
-    public static final ResourceLocation DETAILS_ONLY_UID = new ResourceLocation(UnopenedIndicationMod.MOD_ID, "details_only");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (config.get(DETAILS_ONLY_UID) && !accessor.showDetails()) {
-            return;
-        }
         BlockEntity be = accessor.getBlockEntity();
         if (be == null || ModConfig.isBlacklisted(be.getType()) || !isContainerBlockEntity(be)) {
             return;

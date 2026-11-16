@@ -13,8 +13,6 @@ public class UnopenedJadePlugin implements IWailaPlugin {
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(UnopenedContainerProvider.INSTANCE, Block.class);
-        registration.addConfig(UnopenedContainerProvider.DETAILS_ONLY_UID, false);
         registration.markAsClientFeature(UnopenedContainerProvider.UID);
-        registration.markAsClientFeature(UnopenedContainerProvider.DETAILS_ONLY_UID);
     }
 }

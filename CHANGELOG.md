@@ -1,5 +1,15 @@
 # Changelog / 変更履歴
 
+## [1.0.0-beta.2] - 2026-11-16
+
+### 日本語
+- **Jade 通常ツールチップ表示の確実化**:
+  - `details_only` オプションによる Shift 待ち分岐を完全に撤去し、既存の Jade 設定ファイルが残っている環境でも Shift なしの通常ツールチップに開封・未開封状態が即座に表示されるよう修正しました。
+
+### English
+- **Always Show Jade Status on Standard Tooltip**:
+  - Removed the `details_only` check so loot container status is always shown on the standard (no-Shift) Jade tooltip regardless of previously saved Jade plugin configs.
+
 ## [1.0.0-beta.1] - 2026-11-16
 
 ### 日本語
