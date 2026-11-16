@@ -1,0 +1,7 @@
+{
+  "unopenedindication.config.enabled": "Enable Unopened Glint",
+  "unopenedindication.config.max_render_distance": "Max Render Distance",
+  "unopenedindication.config.render_for_ber": "Render Glint on Chests (BlockEntityRenderer)",
+  "unopenedindication.config.render_for_static": "Render Glint on Barrels & Static Containers",
+  "unopenedindication.config.blacklisted_block_entities": "Blacklisted Block Entity IDs"
+}

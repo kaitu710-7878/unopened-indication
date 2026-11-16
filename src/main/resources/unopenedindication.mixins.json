@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.unopenedindication.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "unopenedindication.refmap.json",
+  "mixins": [
+    "BlockEntityMixin",
+    "LootTableContainerAccessor",
+    "RandomizableContainerBlockEntityMixin"
+  ],
+  "client": [
+    "client.BlockEntityRenderDispatcherMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

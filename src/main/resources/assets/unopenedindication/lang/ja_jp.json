@@ -1,0 +1,7 @@
+{
+  "unopenedindication.config.enabled": "未開封コンテナのきらめき表示を有効化",
+  "unopenedindication.config.max_render_distance": "最大描画距離 (ブロック)",
+  "unopenedindication.config.render_for_ber": "チェスト等のきらめき描画 (BlockEntityRenderer)",
+  "unopenedindication.config.render_for_static": "樽等の静的ブロックコンテナのきらめき描画",
+  "unopenedindication.config.blacklisted_block_entities": "除外するブロックエンティティID"
+}
