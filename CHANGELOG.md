@@ -1,5 +1,15 @@
 # Changelog / 変更履歴
 
+## [1.0.0-beta.1] - 2026-11-16
+
+### 日本語
+- **Beta リリース**:
+  - Jade ツールチップの開封状態表示を、詳細表示時だけでなくコンテナに視線を合わせた際の通常ツールチップへデフォルトで表示するよう変更（`details_only` のデフォルトを `false` に変更）。
+
+### English
+- **Beta Release**:
+  - Changed Jade loot status tooltip to display on the standard look-at tooltip by default instead of requiring details mode (`details_only` now defaults to `false`).
+
 ## [1.0.0-alpha.4] - 2026-11-16
 
 ### 日本語
