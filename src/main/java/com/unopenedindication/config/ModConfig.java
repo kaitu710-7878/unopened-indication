@@ -32,7 +32,7 @@ public final class ModConfig {
     public static volatile double maxRenderDistanceSq = 48.0 * 48.0;
     public static volatile boolean renderForBer = true;
     public static volatile boolean renderForStatic = true;
-    public static volatile int glintPasses = 2;
+    public static volatile int glintPasses = 3;
     private static volatile Set<BlockEntityType<?>> blacklistedTypes = Collections.emptySet();
 
     static {
@@ -62,7 +62,7 @@ public final class ModConfig {
         GLINT_PASSES = clientBuilder
                 .comment("Number of additive enchantment glint passes to render (higher = brighter and easier to spot at a glance).")
                 .translation("unopenedindication.config.glint_passes")
-                .defineInRange("glintPasses", 2, 1, 4);
+                .defineInRange("glintPasses", 3, 1, 4);
 
         clientBuilder.pop();
         CLIENT_SPEC = clientBuilder.build();

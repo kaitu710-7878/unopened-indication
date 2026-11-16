@@ -4,5 +4,10 @@
   "unopenedindication.config.render_for_ber": "チェスト等のきらめき描画 (BlockEntityRenderer)",
   "unopenedindication.config.render_for_static": "樽等の静的ブロックコンテナのきらめき描画",
   "unopenedindication.config.glint_passes": "きらめきの強さ (重ね掛け回数)",
-  "unopenedindication.config.blacklisted_block_entities": "除外するブロックエンティティID"
+  "unopenedindication.config.blacklisted_block_entities": "除外するブロックエンティティID",
+  "config.jade.plugin_unopenedindication.loot_status": "ルートコンテナ状態",
+  "config.jade.plugin_unopenedindication.details_only": "詳細表示時のみ表示",
+  "unopenedindication.jade.status": "開封状態: %s",
+  "unopenedindication.jade.unopened": "未開封",
+  "unopenedindication.jade.opened": "開封済み / ルートなし"
 }

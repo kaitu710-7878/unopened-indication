@@ -4,5 +4,10 @@
   "unopenedindication.config.render_for_ber": "Render Glint on Chests (BlockEntityRenderer)",
   "unopenedindication.config.render_for_static": "Render Glint on Barrels & Static Containers",
   "unopenedindication.config.glint_passes": "Glint Intensity (Passes)",
-  "unopenedindication.config.blacklisted_block_entities": "Blacklisted Block Entity IDs"
+  "unopenedindication.config.blacklisted_block_entities": "Blacklisted Block Entity IDs",
+  "config.jade.plugin_unopenedindication.loot_status": "Loot Container Status",
+  "config.jade.plugin_unopenedindication.details_only": "Show Only in Details Mode",
+  "unopenedindication.jade.status": "Loot Status: %s",
+  "unopenedindication.jade.unopened": "Unopened",
+  "unopenedindication.jade.opened": "Opened / No Loot"
 }

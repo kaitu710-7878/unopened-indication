@@ -1,5 +1,19 @@
 # Changelog / 変更履歴
 
+## [1.0.0-alpha.4] - 2026-11-16
+
+### 日本語
+- **視認性強化**:
+  - グリントの輝度倍率（`BRIGHT_GLINT_TRANSPARENCY`: `1.35x`、`AMBIENT_GLINT_TRANSPARENCY`: `0.90x`）およびデフォルトの重ね掛け回数（`glintPasses`: `2` → `3`）を引き上げ、全体の輝きを約 50% 強化しました。
+- **Jade オプション連携**:
+  - Jade 導入時に、詳細表示ツールチップ（Shift 等）でコンテナの「未開封 / 開封済み」状態を確認できるプラグインを追加しました（Jade プラグイン設定から表示の有無および詳細表示時のみ表示の切り替えが可能）。
+
+### English
+- **Brightness Boost**:
+  - Increased glint shader multipliers (`1.35x` bright / `0.90x` ambient) and raised default `glintPasses` from `2` to `3`, boosting overall glint brightness by ~50%.
+- **Optional Jade Integration**:
+  - Added an optional Jade plugin that displays container loot status (`Unopened` / `Opened / No Loot`) in Jade's details tooltip, with Jade plugin config toggles.
+
 ## [1.0.0-alpha.3] - 2026-11-16
 
 ### 日本語

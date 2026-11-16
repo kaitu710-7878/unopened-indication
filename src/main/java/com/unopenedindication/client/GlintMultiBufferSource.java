@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
  */
 public final class GlintMultiBufferSource implements MultiBufferSource {
     private static final GlintMultiBufferSource COMBINED_INSTANCE = new GlintMultiBufferSource(null);
+    private static final GlintMultiBufferSource PRIMARY_ONLY_INSTANCE = new GlintMultiBufferSource(GlintRenderTypes.BER_GLINT_PRIMARY);
     private static final GlintMultiBufferSource AMBIENT_ONLY_INSTANCE = new GlintMultiBufferSource(GlintRenderTypes.BER_GLINT_AMBIENT);
     private static final GlintMultiBufferSource COUNTER_ONLY_INSTANCE = new GlintMultiBufferSource(GlintRenderTypes.BER_GLINT_COUNTER);
     private static final VertexConsumer NOOP_CONSUMER = new NoopVertexConsumer();
@@ -33,6 +34,10 @@ public final class GlintMultiBufferSource implements MultiBufferSource {
         if (glintType == GlintRenderTypes.BER_GLINT_AMBIENT) {
             AMBIENT_ONLY_INSTANCE.delegate = delegate;
             return AMBIENT_ONLY_INSTANCE;
+        }
+        if (glintType == GlintRenderTypes.BER_GLINT_PRIMARY) {
+            PRIMARY_ONLY_INSTANCE.delegate = delegate;
+            return PRIMARY_ONLY_INSTANCE;
         }
         COUNTER_ONLY_INSTANCE.delegate = delegate;
         return COUNTER_ONLY_INSTANCE;
@@ -75,6 +80,7 @@ public final class GlintMultiBufferSource implements MultiBufferSource {
                 || renderType == RenderType.entityGlintDirect()
                 || renderType == RenderType.glint()
                 || renderType == RenderType.glintDirect()
+                || renderType == GlintRenderTypes.BER_GLINT_PRIMARY
                 || renderType == GlintRenderTypes.BER_GLINT_COUNTER
                 || renderType == GlintRenderTypes.BER_GLINT_AMBIENT;
     }

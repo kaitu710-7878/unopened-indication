@@ -56,11 +56,19 @@ mixin {
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'CurseMaven'
+        url = 'https://www.cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly fg.deobf("curse.maven:jade-324717:5876199")
 }
 
 tasks.withType(JavaCompile).configureEach {

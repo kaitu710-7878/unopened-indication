@@ -76,11 +76,18 @@ public abstract class BlockEntityRenderDispatcherMixin {
         int extraPasses = ModConfig.glintPasses - 1;
         if (extraPasses > 0) {
             MultiBufferSource counterOnly = GlintMultiBufferSource.wrapGlintOnly(rawSource, GlintRenderTypes.BER_GLINT_COUNTER);
-            for (int i = 0; i < extraPasses; i++) {
-                renderer.render(blockEntity, partialTick, poseStack, counterOnly, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
-            }
+            renderer.render(blockEntity, partialTick, poseStack, counterOnly, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
             if (rawSource instanceof MultiBufferSource.BufferSource bs) {
                 bs.endBatch(GlintRenderTypes.BER_GLINT_COUNTER);
+            }
+            if (extraPasses > 1) {
+                MultiBufferSource primaryBright = GlintMultiBufferSource.wrapGlintOnly(rawSource, GlintRenderTypes.BER_GLINT_PRIMARY);
+                for (int i = 1; i < extraPasses; i++) {
+                    renderer.render(blockEntity, partialTick, poseStack, primaryBright, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+                }
+                if (rawSource instanceof MultiBufferSource.BufferSource bs) {
+                    bs.endBatch(GlintRenderTypes.BER_GLINT_PRIMARY);
+                }
             }
         }
     }
