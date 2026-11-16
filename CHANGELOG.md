@@ -1,5 +1,21 @@
 # Changelog / 変更履歴
 
+## [1.0.0-alpha.2] - 2026-11-16
+
+### 日本語
+- **バグ修正**:
+  - `unpackLootTable` 内で `LootTable.fill` が `setItem()` 等を通じて `unpackLootTable(null)` を再帰呼び出しした際に、未開封判定フラグが上書きされて開封後の解除通知が送られない不具合を修正（`lootTable` フィールドの `PUTFIELD` 直後を直接フック）。
+- **視認性向上**:
+  - エンチャントのきらめきエフェクトを一目で判別できるよう、デフォルトの重ね掛け描画回数（`glintPasses`）を `2` に設定し、静的ブロックコンテナ（樽等）の描画パスも `entityGlintDirect` に統一。
+  - クライアントコンフィグに `rendering.glintPasses`（範囲: `1`～`4`）を追加。
+
+### English
+- **Bug Fixes**:
+  - Fixed an issue where unopened state was not cleared after opening/interacting with a container due to recursive `unpackLootTable(null)` calls triggered by `LootTable.fill` overwriting the pre-unpack flag; now hooks directly after the `PUTFIELD lootTable` instruction.
+- **Visual Improvements**:
+  - Increased default additive glint passes (`glintPasses`) to `2` and unified static container rendering onto `entityGlintDirect` so unopened containers stand out immediately at a glance.
+  - Added `rendering.glintPasses` (range `1`–`4`) to the client config.
+
 ## [1.0.0-alpha.1] - 2026-11-16
 
 ### 日本語

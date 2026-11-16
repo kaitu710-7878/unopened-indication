@@ -23,6 +23,7 @@ public final class ModConfig {
     private static final ForgeConfigSpec.IntValue MAX_RENDER_DISTANCE;
     private static final ForgeConfigSpec.BooleanValue RENDER_FOR_BER;
     private static final ForgeConfigSpec.BooleanValue RENDER_FOR_STATIC;
+    private static final ForgeConfigSpec.IntValue GLINT_PASSES;
 
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> BLACKLISTED_BLOCK_ENTITIES;
 
@@ -31,6 +32,7 @@ public final class ModConfig {
     public static volatile double maxRenderDistanceSq = 48.0 * 48.0;
     public static volatile boolean renderForBer = true;
     public static volatile boolean renderForStatic = true;
+    public static volatile int glintPasses = 2;
     private static volatile Set<BlockEntityType<?>> blacklistedTypes = Collections.emptySet();
 
     static {
@@ -56,6 +58,11 @@ public final class ModConfig {
                 .comment("Render glint on static block containers without a BlockEntityRenderer (e.g., barrels, modded crates).")
                 .translation("unopenedindication.config.render_for_static")
                 .define("renderForStaticBlocks", true);
+
+        GLINT_PASSES = clientBuilder
+                .comment("Number of additive enchantment glint passes to render (higher = brighter and easier to spot at a glance).")
+                .translation("unopenedindication.config.glint_passes")
+                .defineInRange("glintPasses", 2, 1, 4);
 
         clientBuilder.pop();
         CLIENT_SPEC = clientBuilder.build();
@@ -90,6 +97,7 @@ public final class ModConfig {
             maxRenderDistanceSq = (double) dist * (double) dist;
             renderForBer = RENDER_FOR_BER.get();
             renderForStatic = RENDER_FOR_STATIC.get();
+            glintPasses = GLINT_PASSES.get();
         } else if (spec == COMMON_SPEC) {
             List<? extends String> rawList = BLACKLISTED_BLOCK_ENTITIES.get();
             if (rawList.isEmpty()) {
