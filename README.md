@@ -20,6 +20,10 @@
 2. `build/libs/unopenedindication-<version>.jar` を `mods` フォルダに入れます。
 3. クライアント・サーバーの両方に導入してください。
 
+### 注意事項（仕様・対象外について）
+- 本 MOD は、**ルートテーブル（`LootTable`）が設定されており、開封または破壊時に初めて中身が抽選・生成されるコンテナ** を「未開封」として判別・装飾します。
+- 一部の構造物に生成されるコンテナには、ルートテーブルではなく**生成時から固定のアイテムが直接設定されているもの**（本 MOD を導入せずとも Jade 等で開封前から中身が確認できるコンテナ）があります。これらはルートテーブルを保持していないため、まだ一度も開けていなくても「開封済み / ルートなし」と表示され、きらめきエフェクトも付与されません（本 MOD の仕様上の管轄外となります）。
+
 ---
 
 ## English
@@ -37,3 +41,7 @@ A lightweight Minecraft 1.20.1 (Forge) mod that highlights unopened loot contain
 ### Installation
 1. Install Minecraft 1.20.1 with Forge 47.x.
 2. Place `unopenedindication-<version>.jar` into the `mods` folder on both client and server.
+
+### Notes & Out of Scope
+- This mod detects and highlights containers that hold a **Loot Table** whose contents are generated only upon opening or breaking.
+- Some structures generate containers with **pre-populated items already stored inside** rather than a Loot Table (containers whose contents are visible in Jade even before opening without this mod). Because they do not have a Loot Table, they are treated as `Opened / No Loot` and will not glow—this is outside the scope of this mod by design.
